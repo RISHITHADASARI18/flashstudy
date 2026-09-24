@@ -11,7 +11,7 @@ export default function Home() {
       <nav className="nav">
         <a className="brand" href="#"><span className="brand-mark">F</span> FlashStudy</a>
         <div className="nav-links"><a href="#features">Features</a><a href="#how">How it works</a></div>
-        <div className="nav-actions"><a className="login" href="/login">Log in</a><a className="nav-cta" href="/signup">Get started <span>→</span></a></div>
+        <div className="nav-actions"><a className="login" href="/login">Log in</a><a className="dashboard-nav-btn" href="/dashboard">Dashboard</a><a className="nav-cta" href="/signup">Get started <span>→</span></a></div>
       </nav>
 
       <section className="hero">
