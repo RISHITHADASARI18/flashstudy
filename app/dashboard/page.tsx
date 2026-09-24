@@ -1,6 +1,5 @@
 import { UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 
 const navigation = [
   { label: "Dashboard", href: "/dashboard", icon: "⌂" },
@@ -12,10 +11,10 @@ const navigation = [
 ];
 
 export default async function DashboardPage() {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
-  const firstName = user.firstName || "there";
-  const email = user.emailAddresses[0]?.emailAddress || "";
+  const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
+  const user = clerkEnabled ? await currentUser() : null;
+  const firstName = user?.firstName || "there";
+  const email = user?.emailAddresses[0]?.emailAddress || "Authentication will be connected before launch";
 
   return (
     <main className="study-dashboard">
@@ -32,7 +31,7 @@ export default async function DashboardPage() {
         <div className="sidebar-bottom">
           <a className="sidebar-link" href="/settings"><span className="sidebar-icon" aria-hidden="true">⚙</span>Settings</a>
           <div className="sidebar-user">
-            <UserButton />
+            {clerkEnabled ? <UserButton /> : <div className="brand-mark">F</div>}
             <div className="sidebar-user-copy"><strong>{firstName}</strong><span>{email}</span></div>
           </div>
         </div>
