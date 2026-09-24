@@ -10,8 +10,16 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const clerkEnabled = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
+  if (!clerkEnabled) {
+    return (
+      <html lang="en">
+        <body>{children}</body>
+      </html>
+    );
+  }
+
   return (
-    <ClerkProvider enabled={clerkEnabled}>
+    <ClerkProvider>
       <html lang="en">
         <body>{children}</body>
       </html>
