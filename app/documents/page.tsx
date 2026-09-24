@@ -24,9 +24,9 @@ export default function DocumentsPage() {
           <div>
             <p className="dashboard-kicker">Study library</p>
             <h1>Your <em>documents</em></h1>
-            <p className="dashboard-subtitle">Keep your study material in one place. Upload filess, documents, slides, text files, or images and we’ll process them into study tools.</p>
+            <p className="dashboard-subtitle">Keep your study material in one place. Upload files, documents, slides, text files, or images and we’ll process them into study tools.</p>
           </div>
-          <Link href="/documents?upload=true#upload" className="dashboard-primary-btn">+ Upload PDF</Link>
+          <Link href="/documents?upload=true#upload" className="dashboard-primary-btn">+ Upload files</Link>
         </header>
 
         <section id="upload" className="upload-card">
@@ -40,7 +40,7 @@ export default function DocumentsPage() {
             <input type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.md,.jpg,.jpeg,.png,.webp" multiple />
             Choose files
           </label>
-          <small>PDF · DOCX · PPTX · TXT · MD · JPG · PNG · WEBP · Processing will be connected with the backend</small>
+          <small>PDF · DOCX · PPTX · TXT · MD · JPG · PNG · WEBP · Files are processed by the FlashStudy backend</small>
         </section>
 
         <section className="documents-section">
