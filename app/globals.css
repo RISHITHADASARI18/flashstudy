@@ -166,3 +166,8 @@
 .flashcards-empty{margin-top:22px;min-height:330px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .flashcards-empty h2{font-size:20px;margin:0 0 8px}.flashcards-empty p{max-width:500px;color:var(--muted);font-size:11px;line-height:1.6;margin:0 0 17px}
 @media(max-width:700px){.flashcards-toolbar{align-items:flex-start;flex-direction:column}.flashcard-workspace{padding:16px}.flashcard{min-height:280px}.flashcard-controls{flex-wrap:wrap}.review-actions{order:3;width:100%}.review-actions button{flex:1}.flashcard-secondary{flex:1}.flashcard-footer{align-items:flex-start;flex-direction:column}}
+
+.flashcards-generator{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.flashcards-generator .dashboard-primary-btn{border:0;cursor:pointer;white-space:nowrap}
+.flashcards-generator .dashboard-primary-btn:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:900px){.flashcards-generator{justify-content:flex-start;width:100%}}
