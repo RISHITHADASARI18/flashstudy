@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     auth_mode: str = "development"
     dev_user_id: str = "dev-user"
     frontend_origins: str = "http://localhost:3000"
+    ollama_url: str = "http://localhost:11434"
+    ollama_model: str = "llama3.2"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
