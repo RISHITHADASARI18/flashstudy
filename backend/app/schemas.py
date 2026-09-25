@@ -67,6 +67,7 @@ class FlashcardOut(BaseModel):
     next_review_at: datetime | None
     created_at: datetime
     updated_at: datetime
+    source_label: str | None = None
 
 class FlashcardReview(BaseModel):
     rating: str
