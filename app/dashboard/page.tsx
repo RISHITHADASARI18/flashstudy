@@ -50,6 +50,7 @@ export default async function DashboardPage() {
             <a className="dashboard-primary-btn" href="/documents?upload=true"><span>+</span> Upload PDF</a>
           </div>
         </header>
+        <PageNavigation />
 
         <section className="dashboard-grid" aria-label="Study overview">
           <article className="dashboard-card dashboard-card-large">
@@ -85,7 +86,6 @@ export default async function DashboardPage() {
             </div>
           </article>
         </section>
-        <PageNavigation />
       </section>
     </main>
   );
