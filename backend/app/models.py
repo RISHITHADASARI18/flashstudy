@@ -31,20 +31,32 @@ class ContentUnit(Base):
     text: Mapped[str] = mapped_column(Text)
     material: Mapped[StudyMaterial] = relationship(back_populates="content_units")
 
-
 class Doubt(Base):
     __tablename__ = "doubts"
-
     id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
     owner_id: Mapped[str] = mapped_column(String(255), index=True)
-    document_id: Mapped[UUID | None] = mapped_column(
-        PGUUID(as_uuid=True), ForeignKey("study_materials.id", ondelete="SET NULL"), nullable=True, index=True
-    )
+    document_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), ForeignKey("study_materials.id", ondelete="SET NULL"), nullable=True, index=True)
     question: Mapped[str] = mapped_column(Text)
     answer: Mapped[str] = mapped_column(Text)
     citations: Mapped[str] = mapped_column(Text, default="[]")
     resolved: Mapped[bool] = mapped_column(default=False, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-
     document: Mapped[StudyMaterial | None] = relationship()
+
+class Flashcard(Base):
+    __tablename__ = "flashcards"
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    owner_id: Mapped[str] = mapped_column(String(255), index=True)
+    document_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), ForeignKey("study_materials.id", ondelete="SET NULL"), nullable=True, index=True)
+    source_unit_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), ForeignKey("content_units.id", ondelete="SET NULL"), nullable=True, index=True)
+    question: Mapped[str] = mapped_column(Text)
+    answer: Mapped[str] = mapped_column(Text)
+    difficulty: Mapped[str] = mapped_column(String(20), default="Medium")
+    review_rating: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    review_count: Mapped[int] = mapped_column(Integer, default=0)
+    next_review_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    document: Mapped[StudyMaterial | None] = relationship()
+    source_unit: Mapped[ContentUnit | None] = relationship()
