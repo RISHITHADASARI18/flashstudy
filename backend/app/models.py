@@ -30,3 +30,21 @@ class ContentUnit(Base):
     source_label: Mapped[str] = mapped_column(String(120))
     text: Mapped[str] = mapped_column(Text)
     material: Mapped[StudyMaterial] = relationship(back_populates="content_units")
+
+
+class Doubt(Base):
+    __tablename__ = "doubts"
+
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    owner_id: Mapped[str] = mapped_column(String(255), index=True)
+    document_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("study_materials.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    question: Mapped[str] = mapped_column(Text)
+    answer: Mapped[str] = mapped_column(Text)
+    citations: Mapped[str] = mapped_column(Text, default="[]")
+    resolved: Mapped[bool] = mapped_column(default=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    document: Mapped[StudyMaterial | None] = relationship()
