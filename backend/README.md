@@ -28,3 +28,13 @@ POST /api/v1/documents
 GET /api/v1/documents/{id}
 DELETE /api/v1/documents/{id}
 POST /api/v1/documents/{id}/retry
+
+
+## Doubts API
+
+- GET /api/v1/doubts — saved doubts for the current user
+- POST /api/v1/doubts — ask and save a doubt
+- PATCH /api/v1/doubts/{id} — mark a doubt resolved/unresolved
+- DELETE /api/v1/doubts/{id} — remove a saved doubt
+
+When a document is selected, retrieval is restricted to that user's document. The backend stores page/slide citations with each answer. If Ollama is running, the retrieved context is sent to the configured local model; otherwise the API returns a clear configuration fallback instead of inventing an answer.
