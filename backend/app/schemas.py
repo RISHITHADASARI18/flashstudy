@@ -25,3 +25,28 @@ class StudyMaterialOut(BaseModel):
 
 class StudyMaterialDetail(StudyMaterialOut):
     content_units: list[ContentUnitOut]
+
+
+class DoubtCreate(BaseModel):
+    question: str
+    document_id: UUID | None = None
+
+class DoubtCitation(BaseModel):
+    content_unit_id: UUID
+    source_label: str
+    source_number: int | None = None
+    snippet: str
+
+class DoubtOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    document_id: UUID | None
+    question: str
+    answer: str
+    citations: list[DoubtCitation]
+    resolved: bool
+    created_at: datetime
+    updated_at: datetime
+
+class DoubtResolve(BaseModel):
+    resolved: bool
