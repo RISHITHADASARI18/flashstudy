@@ -152,7 +152,7 @@ Students can select multiple supported files. Each upload should show a processi
 
 ```
 Uploading -> Processing -> Ready
-                    \-> Failed (with retry)
+                    \\-> Failed (with retry)
 ```
 
 A ready material can link to its extracted content, generated notes, doubts, flashcards, and quizzes.
@@ -173,3 +173,5 @@ A ready material can link to its extracted content, generated notes, doubts, fla
 ## Important architecture rule
 
 Do **not** build the backend around a PDF-only abstraction. The core entity is a **StudyMaterial** with a `type`/MIME type and a type-specific extractor. This keeps images, slides, documents, and PDFs in the same student workflow and avoids a rewrite later.
+
+<!-- Deployment trigger: keep GitHub/Vercel production in sync with the current main branch. -->
