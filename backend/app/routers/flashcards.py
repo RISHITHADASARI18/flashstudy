@@ -16,6 +16,9 @@ settings = get_settings()
 VALID_RATINGS = {"Again", "Hard", "Good", "Easy"}
 REVIEW_DAYS = {"Again": 0, "Hard": 1, "Good": 3, "Easy": 7}
 
+def _to_out(card: Flashcard) -> FlashcardOut:
+    return FlashcardOut(id=card.id, document_id=card.document_id, source_unit_id=card.source_unit_id, question=card.question, answer=card.answer, difficulty=card.difficulty, review_rating=card.review_rating, review_count=card.review_count, next_review_at=card.next_review_at, created_at=card.created_at, updated_at=card.updated_at, source_label=card.source_unit.source_label if card.source_unit else None)
+
 def _owned_document(db: Session, document_id: UUID, owner_id: str) -> StudyMaterial:
     document = db.scalar(select(StudyMaterial).where(StudyMaterial.id == document_id, StudyMaterial.owner_id == owner_id))
     if document is None: raise HTTPException(404, "Document not found.")
@@ -67,7 +70,7 @@ def _fallback_cards(units: list[ContentUnit], count: int) -> list[dict]:
 def list_flashcards(document_id: UUID | None = None, db: Session = Depends(get_db), owner_id: str = Depends(get_current_user_id)):
     query = select(Flashcard).where(Flashcard.owner_id == owner_id)
     if document_id is not None: query = query.where(Flashcard.document_id == document_id)
-    return db.scalars(query.order_by(Flashcard.created_at.desc())).all()
+    cards = db.scalars(query.order_by(Flashcard.created_at.desc())).all()\n    for card in cards: _ = card.source_unit\n    return [_to_out(card) for card in cards]
 
 @router.post("/generate", response_model=FlashcardGenerateResponse, status_code=status.HTTP_201_CREATED)
 def generate_flashcards(payload: FlashcardGenerate, db: Session = Depends(get_db), owner_id: str = Depends(get_current_user_id)):
@@ -84,7 +87,7 @@ def generate_flashcards(payload: FlashcardGenerate, db: Session = Depends(get_db
         db.add(card); created.append(card)
     db.commit()
     for card in created: db.refresh(card)
-    return {"created": len(created), "cards": created}
+    return {"created": len(created), "cards": [_to_out(card) for card in created]}
 
 @router.patch("/{card_id}/review", response_model=FlashcardOut)
 def review_flashcard(card_id: UUID, payload: FlashcardReview, db: Session = Depends(get_db), owner_id: str = Depends(get_current_user_id)):
@@ -93,7 +96,7 @@ def review_flashcard(card_id: UUID, payload: FlashcardReview, db: Session = Depe
     if card is None: raise HTTPException(404, "Flashcard not found.")
     card.review_rating = payload.rating; card.review_count += 1
     card.next_review_at = datetime.now(timezone.utc) + timedelta(days=REVIEW_DAYS[payload.rating])
-    db.commit(); db.refresh(card); return card
+    db.commit(); db.refresh(card); _ = card.source_unit; return _to_out(card)
 
 @router.delete("/{card_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_flashcard(card_id: UUID, db: Session = Depends(get_db), owner_id: str = Depends(get_current_user_id)):
