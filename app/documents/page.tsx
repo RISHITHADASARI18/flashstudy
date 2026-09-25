@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ChangeEvent, useRef, useState } from "react";
+import PageNavigation from "../components/PageNavigation";
 
 type UploadState = "idle" | "uploading" | "success" | "error";
 
@@ -151,6 +152,7 @@ export default function DocumentsPage() {
             <button type="button" className="dashboard-secondary-btn" onClick={openFilePicker}>Upload your first file</button>
           </div>
         </section>
+        <PageNavigation />
       </section>
     </main>
   );
