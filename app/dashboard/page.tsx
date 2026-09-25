@@ -1,5 +1,6 @@
 import { UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
+import PageNavigation from "../components/PageNavigation";
 
 const navigation = [
   { label: "Dashboard", href: "/dashboard", icon: "⌂" },
@@ -84,6 +85,7 @@ export default async function DashboardPage() {
             </div>
           </article>
         </section>
+        <PageNavigation />
       </section>
     </main>
   );
