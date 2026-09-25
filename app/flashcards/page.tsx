@@ -21,12 +21,12 @@ export default function FlashcardsPage() {
       </aside>
       <section className="dashboard-main">
         <header className="dashboard-header"><div><p className="dashboard-kicker">Review</p><h1>Your <em>flashcards</em></h1><p className="dashboard-subtitle">Review generated cards and remember what you study.</p></div></header>
+        <PageNavigation />
         <section className="dashboard-card page-placeholder-card">
           <span className="card-eyebrow">Review</span><h2>Your flashcards</h2>
           <p>This page is connected to the FlashStudy workspace. Generated flashcards will live here and can be reviewed without losing your navigation.</p>
           <div className="page-placeholder-actions"><Link href="/quizzes" className="dashboard-primary-btn">Take a quiz <span>→</span></Link><Link href="/doubts" className="dashboard-secondary-btn">Back to doubts</Link></div>
         </section>
-        <PageNavigation />
       </section>
     </main>
   );
