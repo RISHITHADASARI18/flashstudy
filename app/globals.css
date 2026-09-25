@@ -90,3 +90,34 @@
 .upload-message-uploading{background:#f6f1ed;color:var(--brown)!important}
 .upload-message-idle{background:#f6f1ed;color:var(--muted)!important}
 @media(max-width:760px){.upload-actions{grid-column:1/-1;width:100%;flex-direction:column}.upload-actions button{width:100%}.selected-files,.upload-message{grid-column:1/-1}}
+
+
+.doubts-page{min-height:100vh;display:flex;background:var(--cream)}
+.doubts-main{width:calc(100% - 236px);max-width:1380px;margin:0 auto;padding:48px clamp(25px,4vw,60px) 65px}
+.doubts-header{display:flex;justify-content:space-between;align-items:flex-end;gap:35px;padding-bottom:35px;border-bottom:1px solid var(--line)}
+.doubts-header h1{font-size:clamp(35px,4vw,52px);line-height:1.04;letter-spacing:-.045em;margin:0 0 12px;font-weight:600}
+.doubts-header h1 em{font-family:'Playfair Display',serif;color:var(--primary);font-weight:600}
+.doubt-ask-card{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:25px;display:grid;grid-template-columns:.8fr 1.2fr;gap:34px}
+.doubt-ask-copy h2{font-size:22px;letter-spacing:-.025em;margin:6px 0 8px}
+.doubt-ask-copy p{margin:0;color:var(--muted);font-size:11px;line-height:1.7;max-width:400px}
+.doubt-form{display:flex;flex-direction:column;gap:9px}
+.doubt-form label,.doubt-document-field span{font-size:10px;font-weight:700;color:var(--brown)}
+.doubt-form textarea,.doubt-form select{width:100%;border:1px solid var(--line);background:#fcfaf8;color:var(--brown);border-radius:9px;padding:12px;font:inherit;font-size:11px;outline:none;resize:vertical}
+.doubt-form textarea{min-height:108px;line-height:1.55}
+.doubt-form textarea:focus,.doubt-form select:focus{border-color:#c8aa91;box-shadow:0 0 0 3px rgba(201,162,126,.13)}
+.doubt-form-row{display:flex;align-items:flex-end;gap:10px}
+.doubt-document-field{display:flex;flex-direction:column;gap:7px;flex:1}
+.doubt-document-field select{height:39px}
+.doubt-form-row>.dashboard-primary-btn{border:0;cursor:pointer;height:39px}
+.doubt-form-message{margin:1px 0 0!important;padding:9px 11px;border-radius:8px;background:#f6f1ed;color:var(--muted);font-size:10px!important;line-height:1.5}
+.doubt-history{margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:15px;padding:22px;min-height:350px}
+.doubt-history-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.doubt-history-heading h2{font-size:18px;letter-spacing:-.02em;margin:0}
+.doubt-filters{display:flex;gap:4px;background:#f7f1eb;border-radius:8px;padding:3px}
+.doubt-filter{border:0;background:transparent;color:#8b7d74;border-radius:6px;padding:7px 10px;font:inherit;font-size:9px;font-weight:700;cursor:pointer}
+.doubt-filter.active{background:#fff;color:var(--brown);box-shadow:0 1px 4px rgba(62,39,35,.08)}
+.doubts-empty{min-height:275px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.doubts-empty h3{font-size:14px;margin:0 0 7px}
+.doubts-empty p{max-width:500px;color:var(--muted);font-size:11px;line-height:1.65;margin:0 0 16px}
+@media(max-width:1050px){.doubts-main{width:calc(100% - 205px);padding-left:28px;padding-right:28px}.doubt-ask-card{grid-template-columns:1fr}}
+@media(max-width:760px){.doubts-page{display:block}.doubts-main{width:100%;padding:30px 16px 45px}.doubts-header{align-items:flex-start;flex-direction:column;padding-bottom:25px}.doubt-ask-card{padding:18px;gap:22px}.doubt-form-row{align-items:stretch;flex-direction:column}.doubt-history{padding:18px}.doubt-history-heading{flex-direction:column}.doubt-filters{width:100%}.doubt-filter{flex:1}}
