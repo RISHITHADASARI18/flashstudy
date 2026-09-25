@@ -94,6 +94,7 @@ export default function DocumentsPage() {
           </div>
           <button type="button" className="dashboard-primary-btn" onClick={openFilePicker}>+ Upload files</button>
         </header>
+        <PageNavigation />
 
         <section id="upload" className="upload-card">
           <div className="upload-icon">↑</div>
@@ -152,7 +153,6 @@ export default function DocumentsPage() {
             <button type="button" className="dashboard-secondary-btn" onClick={openFilePicker}>Upload your first file</button>
           </div>
         </section>
-        <PageNavigation />
       </section>
     </main>
   );
