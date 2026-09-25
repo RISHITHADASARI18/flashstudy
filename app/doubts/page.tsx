@@ -97,6 +97,7 @@ export default function DoubtsPage() {
           </div>
           <Link href="/documents" className="dashboard-secondary-btn">View documents</Link>
         </header>
+        <PageNavigation />
 
         <section className="doubt-ask-card">
           <div className="doubt-ask-copy">
@@ -175,7 +176,6 @@ export default function DoubtsPage() {
             </button>
           </div>
         </section>
-        <PageNavigation />
       </section>
     </main>
   );
