@@ -5,6 +5,7 @@ from .config import get_settings
 from .db import Base,engine
 from .routers.documents import router as documents_router
 from .routers.doubts import router as doubts_router
+from .routers.flashcards import router as flashcards_router
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
@@ -16,6 +17,7 @@ app=FastAPI(title="FlashStudy API",version="1.0.0",description="Study-material u
 app.add_middleware(CORSMiddleware,allow_origins=settings.allowed_origins,allow_credentials=True,allow_methods=["*"],allow_headers=["*"])
 app.include_router(documents_router)
 app.include_router(doubts_router)
+app.include_router(flashcards_router)
 
 @app.get("/health")
 def health()->dict[str,str]:
