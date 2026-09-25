@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import PageNavigation from "../components/PageNavigation";
 
 type DoubtStatus = "all" | "unresolved" | "resolved";
 
@@ -174,6 +175,7 @@ export default function DoubtsPage() {
             </button>
           </div>
         </section>
+        <PageNavigation />
       </section>
     </main>
   );
