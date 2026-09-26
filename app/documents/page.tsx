@@ -6,7 +6,7 @@ import PageNavigation from "../components/PageNavigation";
 
 type UploadState = "idle" | "uploading" | "success" | "error";
 
-const API_URL = "/api/backend";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://flashstudy-backend.onrender.com").replace(/\/$/, "");
 
 export default function DocumentsPage() {
   const inputRef = useRef<HTMLInputElement>(null);
