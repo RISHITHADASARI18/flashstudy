@@ -6,7 +6,7 @@ import PageNavigation from "../components/PageNavigation";
 
 type UploadState = "idle" | "uploading" | "success" | "error";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || "https://flashstudy-backend.onrender.com").replace(/\/$/, "");
 
 export default function DocumentsPage() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -70,6 +70,7 @@ export default function DocumentsPage() {
       setFiles([]);
       if (inputRef.current) inputRef.current.value = "";
     } catch (error) {
+      console.error("FlashStudy document upload error:", error);
       setUploadState("error");
       setMessage(error instanceof Error ? error.message : "Something went wrong while uploading.");
     }
