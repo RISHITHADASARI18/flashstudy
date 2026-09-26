@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     max_upload_size_mb: int = 25
     auth_mode: str = "development"
     dev_user_id: str = "dev-user"
-    frontend_origins: str = "http://localhost:3000"
+    frontend_origins: str = "http://localhost:3000,https://flashstudy-rila2.vercel.app"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
