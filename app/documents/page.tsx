@@ -13,6 +13,8 @@ export default function DocumentsPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [uploadState, setUploadState] = useState<UploadState>("idle");
   const [message, setMessage] = useState("");
+  const [uploadedDocumentIds, setUploadedDocumentIds] = useState<string[]>([]);
+  const [generating, setGenerating] = useState(false);
 
   const openFilePicker = () => {
     inputRef.current?.click();
@@ -22,6 +24,7 @@ export default function DocumentsPage() {
     const selected = Array.from(event.target.files ?? []);
     setFiles(selected);
     setUploadState("idle");
+    setUploadedDocumentIds([]);
     setMessage(selected.length ? `${selected.length} file${selected.length === 1 ? "" : "s"} selected` : "");
   };
 
@@ -41,6 +44,8 @@ export default function DocumentsPage() {
     setMessage("Uploading and processing your files...");
 
     try {
+      const documentIds: string[] = [];
+
       for (const file of files) {
         const formData = new FormData();
         formData.append("file", file);
@@ -54,16 +59,47 @@ export default function DocumentsPage() {
           const error = await response.json().catch(() => null);
           throw new Error(error?.detail || `Upload failed for ${file.name}`);
         }
+
+        const document = await response.json();
+        if (document?.id) documentIds.push(document.id);
       }
 
+      setUploadedDocumentIds(documentIds);
       setUploadState("success");
-      setMessage("Files uploaded successfully. Refreshing your library...");
+      setMessage("Files uploaded successfully. Your study material is ready to generate flashcards.");
       setFiles([]);
       if (inputRef.current) inputRef.current.value = "";
-      window.location.reload();
     } catch (error) {
       setUploadState("error");
       setMessage(error instanceof Error ? error.message : "Something went wrong while uploading.");
+    }
+  };
+
+  const generateFlashcards = async () => {
+    if (!API_URL || !uploadedDocumentIds.length) return;
+
+    setGenerating(true);
+    setMessage("Generating flashcards from your uploaded material...");
+
+    try {
+      for (const documentId of uploadedDocumentIds) {
+        const response = await fetch(`${API_URL}/api/v1/flashcards/generate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ document_id: documentId, count: 10 }),
+        });
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => null);
+          throw new Error(error?.detail || "Flashcard generation failed.");
+        }
+      }
+
+      window.location.href = "/flashcards";
+    } catch (error) {
+      setGenerating(false);
+      setUploadState("error");
+      setMessage(error instanceof Error ? error.message : "Something went wrong while generating flashcards.");
     }
   };
 
@@ -75,8 +111,8 @@ export default function DocumentsPage() {
         <nav className="sidebar-nav">
           <Link href="/dashboard" className="sidebar-link"><span className="sidebar-icon">⌂</span>Dashboard</Link>
           <Link href="/documents" className="sidebar-link active"><span className="sidebar-icon">▣</span>Documents</Link>
-          <Link href="/doubts" className="sidebar-link"><span className="sidebar-icon">?</span>Doubts</Link>
           <Link href="/flashcards" className="sidebar-link"><span className="sidebar-icon">▤</span>Flashcards</Link>
+          <Link href="/doubts" className="sidebar-link"><span className="sidebar-icon">?</span>Doubts</Link>
           <Link href="/quizzes" className="sidebar-link"><span className="sidebar-icon">✓</span>Quizzes</Link>
           <Link href="/progress" className="sidebar-link"><span className="sidebar-icon">↗</span>Progress</Link>
         </nav>
@@ -117,9 +153,14 @@ export default function DocumentsPage() {
             <button type="button" className="upload-select" onClick={openFilePicker}>
               Choose files
             </button>
-            <button type="button" className="dashboard-primary-btn" onClick={uploadFiles} disabled={uploadState === "uploading"}>
+            <button type="button" className="dashboard-primary-btn" onClick={uploadFiles} disabled={uploadState === "uploading" || generating}>
               {uploadState === "uploading" ? "Uploading..." : "Upload selected files"}
             </button>
+            {uploadedDocumentIds.length > 0 && (
+              <button type="button" className="dashboard-primary-btn" onClick={generateFlashcards} disabled={generating}>
+                {generating ? "Generating..." : "Generate"}
+              </button>
+            )}
           </div>
 
           {files.length > 0 && (
