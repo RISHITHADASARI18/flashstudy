@@ -1,20 +1,16 @@
 import json
 from uuid import UUID
 
-import httpx
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import or_, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..auth import get_current_user_id
-from ..config import get_settings
 from ..db import get_db
 from ..models import ContentUnit, Doubt, StudyMaterial
-from ..providers.ollama import OllamaProvider
 from ..schemas import DoubtCitation, DoubtCreate, DoubtOut, DoubtResolve
 
 router = APIRouter(prefix="/api/v1/doubts", tags=["doubts"])
-ai_provider = OllamaProvider()
 
 
 def _citations(value: str) -> list[dict]:
@@ -88,7 +84,7 @@ def _fallback_answer(units: list[ContentUnit]) -> str:
     labels = ", ".join(unit.source_label for unit in units[:3])
     return (
         "I found relevant material in your study notes, but the AI answer provider is not configured. "
-        f"Relevant sources: {labels}. Configure Ollama locally to generate a grounded explanation."
+        f"Relevant sources: {labels}."
     )
 
 
@@ -124,9 +120,7 @@ async def create_doubt(
         _owned_document(db, payload.document_id, owner_id)
 
     units = _retrieve_units(db, question, owner_id, payload.document_id)
-    answer = ai_provider.answer_doubt(question, _context(units))
-    if answer is None:
-        answer = _fallback_answer(units)
+    answer = _fallback_answer(units)
 
     citation_items = [
         {
