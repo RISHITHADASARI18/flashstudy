@@ -50,7 +50,7 @@ export default function DocumentsPage() {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await fetch(`${API_URL}/api/v1/documents`, {
+        const response = await fetch(`${API_URL}/v1/documents`, {
           method: "POST",
           body: formData,
         });
@@ -84,7 +84,7 @@ export default function DocumentsPage() {
 
     try {
       for (const documentId of uploadedDocumentIds) {
-        const response = await fetch(`${API_URL}/api/v1/flashcards/generate`, {
+        const response = await fetch(`${API_URL}/v1/flashcards/generate`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ document_id: documentId, count: 10 }),
