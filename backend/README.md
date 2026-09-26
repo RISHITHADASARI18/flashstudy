@@ -26,6 +26,7 @@ GET /health
 GET /api/v1/documents
 POST /api/v1/documents
 GET /api/v1/documents/{id}
+GET /api/v1/documents/{id}/download
 DELETE /api/v1/documents/{id}
 POST /api/v1/documents/{id}/retry
 
