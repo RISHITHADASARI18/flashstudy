@@ -138,7 +138,7 @@ export default function FlashcardsPage() {
         <Link href="/dashboard" className="dashboard-brand"><span className="brand-mark">F</span> FlashStudy</Link>
         <span className="sidebar-label">Workspace</span>
         <nav className="sidebar-nav" aria-label="Study navigation">
-          {[["Dashboard","/dashboard","⌂"],["Documents","/documents","▣"],["Doubts","/doubts","?"],["Flashcards","/flashcards","◇"],["Quizzes","/quizzes","✓"],["Progress","/progress","↗"]].map(([label, href, icon]) =>
+          {[["Dashboard","/dashboard","⌂"],["Documents","/documents","▣"],["Flashcards","/flashcards","◇"],["Doubts","/doubts","?"],["Quizzes","/quizzes","✓"],["Progress","/progress","↗"]].map(([label, href, icon]) =>
             <Link key={href} href={href} className={href === "/flashcards" ? "sidebar-link active" : "sidebar-link"}><span className="sidebar-icon">{icon}</span>{label}</Link>
           )}
         </nav>
