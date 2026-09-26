@@ -1,6 +1,6 @@
 # FlashStudy Backend
 
-FastAPI backend for FlashStudy study-material uploads.
+FastAPI backend for FlashStudy study-material uploads and study generation.
 
 ## What it does
 - accepts PDF, DOCX, PPTX, TXT, Markdown, JPG, JPEG, PNG, and WEBP
@@ -8,28 +8,46 @@ FastAPI backend for FlashStudy study-material uploads.
 - stores original uploads outside PostgreSQL
 - extracts source-aware text
 - stores content units with page/slide/image metadata
-- exposes document list/detail/delete/retry APIs
+- exposes document list/detail/download/delete/retry APIs
 - tracks uploaded -> processing -> ready or failed
+- stores doubts and their source citations
+- generates grounded flashcards from uploaded study material
+- stores flashcard reviews and next-review dates
 
 ## Run
 1. Create a PostgreSQL database.
 2. Copy .env.example to .env.
-3. pip install -r requirements.txt
-4. uvicorn app.main:app --reload
+3. Install dependencies with `pip install -r requirements.txt`.
+4. Start Ollama locally and make sure the configured model is available.
+5. Start the API with `uvicorn app.main:app --reload`.
 
 API docs: /docs
 
-Development uses a server-side DEV_USER_ID until Clerk is activated. The browser never supplies an owner ID.
+## Free AI for flashcards
 
-## API
-GET /health
-GET /api/v1/documents
-POST /api/v1/documents
-GET /api/v1/documents/{id}
-GET /api/v1/documents/{id}/download
-DELETE /api/v1/documents/{id}
-POST /api/v1/documents/{id}/retry
+Flashcard generation uses the local **Ollama** provider by default. Ollama runs the AI model on the user's own machine, so FlashStudy does not require a paid AI API key for this path.
 
+Configure in `.env`:
+
+```env
+OLLAMA_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+```
+
+The backend sends only extracted study material to the model and requires JSON flashcards with a source label. Generated cards are stored in PostgreSQL.
+
+If Ollama is unavailable, the backend falls back to deterministic cards made directly from the uploaded material. It does not invent replacement facts.
+
+## Flashcards API
+
+- GET /api/v1/flashcards — saved cards for the current user
+- GET /api/v1/flashcards?document_id={id} — cards for one document
+- GET /api/v1/flashcards?due_only=true — cards currently due for review
+- POST /api/v1/flashcards/generate — generate and save cards from one ready document
+- PATCH /api/v1/flashcards/{id}/review — save Again/Hard/Good/Easy review
+- DELETE /api/v1/flashcards/{id} — delete a saved card
+
+Generation is limited to 30 cards per request. Each card keeps the source content-unit/page label used to ground the generation.
 
 ## Doubts API
 
@@ -38,4 +56,6 @@ POST /api/v1/documents/{id}/retry
 - PATCH /api/v1/doubts/{id} — mark a doubt resolved/unresolved
 - DELETE /api/v1/doubts/{id} — remove a saved doubt
 
-When a document is selected, retrieval is restricted to that user's document. The backend stores page/slide citations with each answer. If Ollama is running, the retrieved context is sent to the configured local model; otherwise the API returns a clear configuration fallback instead of inventing an answer.
+When a document is selected, retrieval is restricted to that user's document. The backend stores page/slide citations with each answer.
+
+Development uses a server-side DEV_USER_ID until real authentication is activated. The browser never supplies an owner ID.
