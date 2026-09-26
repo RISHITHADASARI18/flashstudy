@@ -3,6 +3,7 @@ import re
 from pathlib import Path
 from uuid import UUID
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 from ..auth import get_current_user_id
@@ -34,17 +35,31 @@ def get_owned_document(db:Session,document_id:UUID,owner_id:str)->StudyMaterial:
     if doc is None: raise HTTPException(404,"Document not found.")
     return doc
 
+def document_path(document:StudyMaterial)->Path:
+    root=Path(settings.storage_dir).resolve()
+    path=(root/document.storage_key).resolve()
+    if root not in path.parents:
+        raise HTTPException(500,"Invalid document storage path.")
+    return path
+
 def process_document(db:Session,document:StudyMaterial,path:Path)->None:
     document.status="processing"; document.error_message=None
     db.query(ContentUnit).filter(ContentUnit.material_id==document.id).delete()
     db.commit()
     try:
-        for unit in extract_content(path,document.material_type):
+        units=extract_content(path,document.material_type)
+        if not units:
+            raise RuntimeError("No readable content was found in this file.")
+        for unit in units:
             db.add(ContentUnit(material_id=document.id,position=unit.position,source_type=unit.source_type,source_number=unit.source_number,source_label=unit.source_label,text=unit.text))
         document.status="ready"
+        document.error_message=None
         db.commit()
     except Exception as exc:
-        document.status="failed"; document.error_message=str(exc)[:1000]; db.commit()
+        db.rollback()
+        document.status="failed"
+        document.error_message=str(exc)[:1000]
+        db.commit()
         raise
 
 @router.get("",response_model=list[StudyMaterialOut])
@@ -59,11 +74,19 @@ async def upload_document(file:UploadFile=File(...),db:Session=Depends(get_db),o
     root=Path(settings.storage_dir); root.mkdir(parents=True,exist_ok=True)
     doc=StudyMaterial(owner_id=owner_id,original_filename=original_name,storage_key="pending",mime_type=file.content_type or mimetypes.guess_type(original_name)[0] or "application/octet-stream",material_type=material_type,size_bytes=len(data),status="uploaded")
     db.add(doc); db.commit(); db.refresh(doc)
-    storage_key=f"{owner_id}/{doc.id}_{original_name}"
-    path=root/storage_key; path.parent.mkdir(parents=True,exist_ok=True); path.write_bytes(data)
-    doc.storage_key=storage_key; db.commit()
-    try: process_document(db,doc,path)
-    except Exception: pass
+    storage_key=f"{doc.id}/{original_name}"
+    path=(root/storage_key).resolve()
+    if root.resolve() not in path.parents:
+        db.delete(doc); db.commit()
+        raise HTTPException(500,"Unable to create a safe storage path.")
+    path.parent.mkdir(parents=True,exist_ok=True)
+    try:
+        path.write_bytes(data)
+        doc.storage_key=storage_key
+        db.commit()
+        process_document(db,doc,path)
+    except Exception:
+        if path.exists(): path.unlink()
     return get_owned_document(db,doc.id,owner_id)
 
 @router.get("/{document_id}",response_model=StudyMaterialDetail)
@@ -73,7 +96,7 @@ def get_document(document_id:UUID,db:Session=Depends(get_db),owner_id:str=Depend
 @router.post("/{document_id}/retry",response_model=StudyMaterialDetail)
 def retry_document(document_id:UUID,db:Session=Depends(get_db),owner_id:str=Depends(get_current_user_id)):
     doc=get_owned_document(db,document_id,owner_id)
-    path=Path(settings.storage_dir)/doc.storage_key
+    path=document_path(doc)
     if not path.exists(): raise HTTPException(404,"Original upload is missing from storage.")
     try: process_document(db,doc,path)
     except Exception: pass
@@ -82,6 +105,14 @@ def retry_document(document_id:UUID,db:Session=Depends(get_db),owner_id:str=Depe
 @router.delete("/{document_id}",status_code=status.HTTP_204_NO_CONTENT)
 def delete_document(document_id:UUID,db:Session=Depends(get_db),owner_id:str=Depends(get_current_user_id)):
     doc=get_owned_document(db,document_id,owner_id)
-    path=Path(settings.storage_dir)/doc.storage_key
+    path=document_path(doc)
     if path.exists(): path.unlink()
     db.delete(doc); db.commit()
+
+@router.get("/{document_id}/download",response_class=FileResponse)
+def download_document(document_id:UUID,db:Session=Depends(get_db),owner_id:str=Depends(get_current_user_id)):
+    doc=get_owned_document(db,document_id,owner_id)
+    path=document_path(doc)
+    if not path.exists():
+        raise HTTPException(404,"Original upload is missing from storage.")
+    return FileResponse(path=path,media_type=doc.mime_type,filename=doc.original_filename)
