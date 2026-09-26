@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     auth_mode: str = "development"
     dev_user_id: str = "dev-user"
     frontend_origins: str = "http://localhost:3000,https://flashstudy-rila2.vercel.app"
-    frontend_origin_regex: str = r"https://.*\\.vercel\\.app"
+    frontend_origin_regex: str = r"https://.*\.vercel\.app"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
