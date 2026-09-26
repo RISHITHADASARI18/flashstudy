@@ -5,8 +5,8 @@ import PageNavigation from "../components/PageNavigation";
 const navigation = [
   { label: "Dashboard", href: "/dashboard", icon: "⌂" },
   { label: "Documents", href: "/documents", icon: "▤" },
-  { label: "Doubts", href: "/doubts", icon: "?" },
   { label: "Flashcards", href: "/flashcards", icon: "◇" },
+  { label: "Doubts", href: "/doubts", icon: "?" },
   { label: "Quizzes", href: "/quizzes", icon: "✓" },
   { label: "Progress", href: "/progress", icon: "↗" },
 ];
