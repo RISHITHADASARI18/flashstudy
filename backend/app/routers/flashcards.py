@@ -8,13 +8,11 @@ from sqlalchemy.orm import Session
 from ..auth import get_current_user_id
 from ..db import get_db
 from ..models import ContentUnit, Flashcard, StudyMaterial
-from ..providers.ollama import OllamaProvider
 from ..schemas import FlashcardGenerate, FlashcardGenerateResponse, FlashcardOut, FlashcardReview
 
 router = APIRouter(prefix="/api/v1/flashcards", tags=["flashcards"])
 VALID_RATINGS = {"Again", "Hard", "Good", "Easy"}
 REVIEW_DAYS = {"Again": 0, "Hard": 1, "Good": 3, "Easy": 7}
-ai_provider = OllamaProvider()
 
 def _to_out(card: Flashcard) -> FlashcardOut:
     return FlashcardOut(
@@ -103,15 +101,7 @@ def generate_flashcards(
     if not units:
         raise HTTPException(409, "This document has no extracted study content.")
 
-    # Keep the prompt grounded in the uploaded material and retain source labels.
-    context = "\n\n".join(
-        f"[{unit.source_label}]\n{unit.text[:5000]}"
-        for unit in units
-    )[:50000]
-    generated = ai_provider.generate_flashcards(context, count)
-
-    # The free local AI is preferred. A deterministic material-only fallback keeps
-    # generation usable when Ollama is unavailable, without inventing content.
+    generated = _fallback_cards(units, count)
     if not generated:
         generated = _fallback_cards(units, count)
     if not generated:
