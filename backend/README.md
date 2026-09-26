@@ -59,3 +59,19 @@ Generation is limited to 30 cards per request. Each card keeps the source conten
 When a document is selected, retrieval is restricted to that user's document. The backend stores page/slide citations with each answer.
 
 Development uses a server-side DEV_USER_ID until real authentication is activated. The browser never supplies an owner ID.
+
+## Testing the real Ollama connection
+
+The repository includes a real AI smoke test at `scripts/test_ollama.py`. It sends study material to the configured Ollama model and validates the returned flashcard JSON and source label.
+
+GitHub Actions runs this test automatically when the Ollama provider changes, and it can also be started manually from the Actions tab using **Ollama AI smoke test → Run workflow**.
+
+For local testing, start Ollama with the configured model and run:
+
+```powershell
+$env:OLLAMA_URL="http://localhost:11434"
+$env:OLLAMA_MODEL="llama3.2"
+python scripts/test_ollama.py
+```
+
+This verifies the AI provider itself. The full FlashStudy flow is: upload a ready document → call `POST /api/v1/flashcards/generate` → Ollama generates grounded cards → PostgreSQL stores them → the Flashcards page loads the saved cards.
