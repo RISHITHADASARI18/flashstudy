@@ -11,8 +11,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 const navigation = [
   { label: "Dashboard", href: "/dashboard", icon: "⌂" },
   { label: "Documents", href: "/documents", icon: "▣" },
-  { label: "Doubts", href: "/doubts", icon: "?" },
   { label: "Flashcards", href: "/flashcards", icon: "◇" },
+  { label: "Doubts", href: "/doubts", icon: "?" },
   { label: "Quizzes", href: "/quizzes", icon: "✓" },
   { label: "Progress", href: "/progress", icon: "↗" },
 ];
