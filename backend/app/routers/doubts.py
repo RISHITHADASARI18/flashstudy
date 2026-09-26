@@ -10,10 +10,11 @@ from ..auth import get_current_user_id
 from ..config import get_settings
 from ..db import get_db
 from ..models import ContentUnit, Doubt, StudyMaterial
+from ..providers.ollama import OllamaProvider
 from ..schemas import DoubtCitation, DoubtCreate, DoubtOut, DoubtResolve
 
 router = APIRouter(prefix="/api/v1/doubts", tags=["doubts"])
-settings = get_settings()
+ai_provider = OllamaProvider()
 
 
 def _citations(value: str) -> list[dict]:
@@ -77,36 +78,8 @@ def _retrieve_units(
     return [unit for _, unit in scored[:5]]
 
 
-async def _answer_with_ollama(question: str, units: list[ContentUnit]) -> str | None:
-    if not units:
-        return None
-
-    context = "\n\n".join(
-        f"[{unit.source_label}]\n{unit.text[:5000]}" for unit in units
-    )
-    prompt = f"""You are FlashStudy, a study assistant.
-Answer the student's question using ONLY the supplied study material.
-If the material does not contain enough information, say that clearly instead of guessing.
-Keep the explanation concise and student-friendly.
-Mention source labels such as Page 3 or Slide 5 when useful.
-
-Question:
-{question}
-
-Study material:
-{context}
-"""
-    try:
-        async with httpx.AsyncClient(timeout=90) as client:
-            response = await client.post(
-                f"{settings.ollama_url.rstrip('/')}/api/generate",
-                json={"model": settings.ollama_model, "prompt": prompt, "stream": False},
-            )
-            response.raise_for_status()
-            answer = response.json().get("response", "").strip()
-            return answer or None
-    except (httpx.HTTPError, ValueError):
-        return None
+def _context(units: list[ContentUnit]) -> str:
+    return "\n\n".join(f"[{unit.source_label}]\n{unit.text[:5000]}" for unit in units)[:25000]
 
 
 def _fallback_answer(units: list[ContentUnit]) -> str:
@@ -151,7 +124,7 @@ async def create_doubt(
         _owned_document(db, payload.document_id, owner_id)
 
     units = _retrieve_units(db, question, owner_id, payload.document_id)
-    answer = await _answer_with_ollama(question, units)
+    answer = ai_provider.answer_doubt(question, _context(units))
     if answer is None:
         answer = _fallback_answer(units)
 
