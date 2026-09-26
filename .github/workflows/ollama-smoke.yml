@@ -1,0 +1,45 @@
+name: Ollama AI smoke test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "backend/app/providers/**"
+      - "backend/app/config.py"
+      - "scripts/test_ollama.py"
+      - ".github/workflows/ollama-smoke.yml"
+
+jobs:
+  ollama-generation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Start Ollama
+        run: |
+          nohup ollama serve > /tmp/ollama.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags
+
+      - name: Pull configured model
+        run: ollama pull llama3.2
+
+      - name: Run real generation smoke test
+        env:
+          OLLAMA_URL: http://127.0.0.1:11434
+          OLLAMA_MODEL: llama3.2
+        run: python scripts/test_ollama.py
+
+      - name: Show Ollama log on failure
+        if: failure()
+        run: cat /tmp/ollama.log || true
