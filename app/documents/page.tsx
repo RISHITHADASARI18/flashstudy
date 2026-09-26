@@ -56,8 +56,19 @@ export default function DocumentsPage() {
         });
 
         if (!response.ok) {
-          const error = await response.json().catch(() => null);
-          throw new Error(error?.detail || `Upload failed for ${file.name}`);
+          const responseText = await response.text().catch(() => "");
+          let detail = "";
+          try {
+            const parsed = responseText ? JSON.parse(responseText) : null;
+            detail = parsed?.detail || parsed?.error || "";
+          } catch {
+            detail = responseText;
+          }
+          throw new Error(
+            detail
+              ? `Upload failed for ${file.name}: ${detail}`
+              : `Upload failed for ${file.name} (HTTP ${response.status} ${response.statusText || "error"})`
+          );
         }
 
         const document = await response.json();
