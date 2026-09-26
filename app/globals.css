@@ -171,3 +171,26 @@
 .flashcards-generator .dashboard-primary-btn{border:0;cursor:pointer;white-space:nowrap}
 .flashcards-generator .dashboard-primary-btn:disabled{opacity:.5;cursor:not-allowed}
 @media(max-width:900px){.flashcards-generator{justify-content:flex-start;width:100%}}
+
+/* Saved doubt history */
+.doubt-count{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:20px;padding:0 7px;margin-left:7px;border-radius:999px;background:#f3eae2;color:var(--primary);font-size:9px;vertical-align:middle}
+.doubt-list{display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.doubt-item{border:1px solid #eee5de;border-radius:12px;background:#fcfaf8;overflow:hidden}
+.doubt-item.expanded{background:#fff;border-color:#dfd0c4}
+.doubt-item-main{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:7px;border:0;background:transparent;padding:17px 18px;text-align:left;color:var(--brown);cursor:pointer}
+.doubt-item-main strong{font-size:13px;line-height:1.5;font-weight:700}
+.doubt-meta{font-size:9px;color:#9b8c82}
+.doubt-status{display:inline-flex;padding:4px 7px;border-radius:999px;background:#fff1df;color:#916b3e;font-size:8px;font-weight:700}
+.doubt-status.resolved{background:#edf6ee;color:#4f7658}
+.doubt-item-actions{display:flex;gap:6px;padding:0 18px 14px}
+.doubt-action{border:1px solid var(--line);background:#fff;color:var(--brown);border-radius:7px;padding:7px 10px;font:inherit;font-size:9px;font-weight:700;cursor:pointer}
+.doubt-action:hover{background:#f7f1eb;border-color:#cdbeb1}
+.doubt-action.danger{color:#9b5548}
+.doubt-action:disabled{opacity:.55;cursor:wait}
+.doubt-answer{border-top:1px solid #eee5de;padding:18px}
+.doubt-answer p{margin:6px 0 0;color:#5e514b;font-size:11px;line-height:1.75;white-space:pre-wrap}
+.doubt-citations{margin-top:18px;padding-top:15px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.doubt-citation{display:flex;flex-direction:column;gap:3px;padding:9px 11px;border-radius:8px;background:#fcfaf8;border:1px solid #eee6df}
+.doubt-citation strong{font-size:9px;color:var(--primary)}
+.doubt-citation span{font-size:9px;color:var(--muted);line-height:1.5}
+@media(max-width:600px){.doubt-item-main{padding:15px}.doubt-item-actions{padding:0 15px 13px}.doubt-answer{padding:15px}}
