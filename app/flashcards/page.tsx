@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import PageNavigation from "../components/PageNavigation";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+const API_URL = `${(process.env.NEXT_PUBLIC_API_URL || "https://flashstudy-backend.onrender.com").replace(/\/$/, "")}`;
 
 type Document = { id: string; original_filename: string; status: string };
 type Card = {
@@ -29,6 +30,7 @@ export default function FlashcardsPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState("");
+  const searchParams = useSearchParams();
 
   const filteredCards = useMemo(
     () => documentId === "all" ? cards : cards.filter((card) => card.document_id === documentId),
