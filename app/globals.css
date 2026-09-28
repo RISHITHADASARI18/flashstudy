@@ -401,3 +401,57 @@
     gap:7px;
   }
 }
+\n
+/* Doubts answer highlight */
+.doubt-history{
+  min-height:420px;
+}
+.doubt-list{
+  gap:14px;
+}
+.doubt-item{
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 5px 16px rgba(62,39,35,.04);
+}
+.doubt-item-main{
+  padding:15px 18px;
+  gap:6px;
+}
+.doubt-item-main strong{
+  font-size:12px;
+  line-height:1.45;
+}
+.doubt-answer{
+  margin:0 14px 14px;
+  border:1px solid #dcc8b7;
+  border-radius:12px;
+  padding:18px 20px;
+  background:
+    radial-gradient(circle at 5% 5%,rgba(201,162,126,.16),transparent 30%),
+    #fcf7f2;
+  box-shadow:inset 4px 0 0 var(--tan);
+}
+.doubt-answer::before{
+  content:"ANSWER";
+  display:block;
+  margin-bottom:9px;
+  color:var(--primary);
+  font-size:8px;
+  font-weight:800;
+  letter-spacing:.14em;
+}
+.doubt-answer p{
+  margin:0;
+  color:var(--brown);
+  font-size:13px;
+  line-height:1.75;
+  font-weight:500;
+}
+.doubt-citations{
+  margin-top:15px;
+  padding-top:12px;
+}
+.doubt-citation{
+  background:#fff;
+}
