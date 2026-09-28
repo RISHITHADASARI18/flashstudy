@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PageNavigation from "../components/PageNavigation";
 
@@ -20,7 +20,7 @@ type Card = {
   next_review_at: string | null;
 };
 
-export default function FlashcardsPage() {
+function FlashcardsContent() {
   const [cards, setCards] = useState<Card[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [documentId, setDocumentId] = useState("all");
@@ -222,5 +222,14 @@ export default function FlashcardsPage() {
         )}
       </section>
     </main>
+  );
+}
+
+
+export default function FlashcardsPage() {
+  return (
+    <Suspense fallback={<main className="study-dashboard"><section className="dashboard-main"><section className="dashboard-card flashcards-empty"><h2>Loading flashcards...</h2><p>Preparing your saved flashcards.</p></section></section></main>}>
+      <FlashcardsContent />
+    </Suspense>
   );
 }
