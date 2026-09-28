@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from ..ai import AIProviderError, generate_study_set
 from ..auth import get_current_user_id
 from ..db import get_db
 from ..models import ContentUnit, Flashcard, StudyMaterial
@@ -16,54 +16,21 @@ REVIEW_DAYS = {"Again": 0, "Hard": 1, "Good": 3, "Easy": 7}
 
 def _to_out(card: Flashcard) -> FlashcardOut:
     return FlashcardOut(
-        id=card.id,
-        document_id=card.document_id,
-        source_unit_id=card.source_unit_id,
-        question=card.question,
-        answer=card.answer,
-        difficulty=card.difficulty,
-        review_rating=card.review_rating,
-        review_count=card.review_count,
-        next_review_at=card.next_review_at,
-        created_at=card.created_at,
+        id=card.id, document_id=card.document_id, source_unit_id=card.source_unit_id,
+        question=card.question, answer=card.answer, difficulty=card.difficulty,
+        review_rating=card.review_rating, review_count=card.review_count,
+        next_review_at=card.next_review_at, created_at=card.created_at,
         updated_at=card.updated_at,
         source_label=card.source_unit.source_label if card.source_unit else None,
     )
 
 def _owned_document(db: Session, document_id: UUID, owner_id: str) -> StudyMaterial:
-    document = db.scalar(
-        select(StudyMaterial).where(
-            StudyMaterial.id == document_id,
-            StudyMaterial.owner_id == owner_id,
-        )
-    )
+    document = db.scalar(select(StudyMaterial).where(StudyMaterial.id == document_id, StudyMaterial.owner_id == owner_id))
     if document is None:
         raise HTTPException(404, "Document not found.")
     if document.status != "ready":
         raise HTTPException(409, "This document is not ready for flashcards yet.")
     return document
-
-def _fallback_cards(units: list[ContentUnit], count: int) -> list[dict]:
-    cards: list[dict] = []
-    for unit in units:
-        sentences = [
-            sentence.strip()
-            for sentence in unit.text.replace("\n", " ").split(".")
-            if len(sentence.strip()) > 35
-        ]
-        for sentence in sentences[:3]:
-            words = sentence.split()
-            if len(words) < 8:
-                continue
-            cards.append({
-                "question": f"What does the study material explain about {' '.join(words[:6])}?",
-                "answer": sentence + ".",
-                "difficulty": "Medium",
-                "source_label": unit.source_label,
-            })
-            if len(cards) >= count:
-                return cards
-    return cards
 
 @router.get("", response_model=list[FlashcardOut])
 def list_flashcards(
@@ -77,9 +44,7 @@ def list_flashcards(
         query = query.where(Flashcard.document_id == document_id)
     if due_only:
         now = datetime.now(timezone.utc)
-        query = query.where(
-            (Flashcard.next_review_at.is_(None)) | (Flashcard.next_review_at <= now)
-        )
+        query = query.where((Flashcard.next_review_at.is_(None)) | (Flashcard.next_review_at <= now))
     cards = db.scalars(query.order_by(Flashcard.created_at.desc())).all()
     for card in cards:
         _ = card.source_unit
@@ -94,33 +59,34 @@ def generate_flashcards(
     count = max(1, min(payload.count, 30))
     document = _owned_document(db, payload.document_id, owner_id)
     units = db.scalars(
-        select(ContentUnit)
-        .where(ContentUnit.material_id == document.id)
-        .order_by(ContentUnit.position)
+        select(ContentUnit).where(ContentUnit.material_id == document.id).order_by(ContentUnit.position)
     ).all()
     if not units:
         raise HTTPException(409, "This document has no extracted study content.")
 
-    generated = _fallback_cards(units, count)
-    if not generated:
-        generated = _fallback_cards(units, count)
-    if not generated:
-        raise HTTPException(422, "Could not generate flashcards from this document.")
+    material_text = "\n\n".join(f"[{unit.source_label}]\n{unit.text}" for unit in units)[:90000]
+    try:
+        result = generate_study_set(material_text, flashcard_count=count, quiz_count=1)
+    except AIProviderError as exc:
+        raise HTTPException(502, str(exc)) from exc
 
     units_by_label = {unit.source_label: unit for unit in units}
-    created: list[Flashcard] = []
-    for item in generated:
-        source_unit = units_by_label.get(item.get("source_label", "")) or units[0]
-        created.append(
-            Flashcard(
-                owner_id=owner_id,
-                document_id=document.id,
-                source_unit_id=source_unit.id,
-                question=item["question"],
-                answer=item["answer"],
-                difficulty=item["difficulty"],
-            )
-        )
+    created = []
+    for item in result["flashcards"]:
+        if not isinstance(item.get("question"), str) or not isinstance(item.get("answer"), str):
+            continue
+        source_unit = units_by_label.get(item.get("source_label")) or units[0]
+        created.append(Flashcard(
+            owner_id=owner_id,
+            document_id=document.id,
+            source_unit_id=source_unit.id,
+            question=item["question"].strip(),
+            answer=item["answer"].strip(),
+            difficulty=item.get("difficulty", "Medium"),
+        ))
+    if not created:
+        raise HTTPException(422, "The AI could not create flashcards from this document.")
+
     db.add_all(created)
     db.commit()
     for card in created:
@@ -137,12 +103,7 @@ def review_flashcard(
 ):
     if payload.rating not in VALID_RATINGS:
         raise HTTPException(422, "Rating must be Again, Hard, Good, or Easy.")
-    card = db.scalar(
-        select(Flashcard).where(
-            Flashcard.id == card_id,
-            Flashcard.owner_id == owner_id,
-        )
-    )
+    card = db.scalar(select(Flashcard).where(Flashcard.id == card_id, Flashcard.owner_id == owner_id))
     if card is None:
         raise HTTPException(404, "Flashcard not found.")
     card.review_rating = payload.rating
@@ -159,12 +120,7 @@ def delete_flashcard(
     db: Session = Depends(get_db),
     owner_id: str = Depends(get_current_user_id),
 ):
-    card = db.scalar(
-        select(Flashcard).where(
-            Flashcard.id == card_id,
-            Flashcard.owner_id == owner_id,
-        )
-    )
+    card = db.scalar(select(Flashcard).where(Flashcard.id == card_id, Flashcard.owner_id == owner_id))
     if card is None:
         raise HTTPException(404, "Flashcard not found.")
     db.delete(card)
