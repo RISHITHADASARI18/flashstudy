@@ -220,17 +220,8 @@ export default function DoubtsPage() {
                       <button type="button" className="doubt-action danger" onClick={() => deleteDoubt(doubt.id)} disabled={deletingId === doubt.id}>{deletingId === doubt.id ? "Deleting..." : "Delete"}</button>
                     </div>
                     {expanded && (
-                      <div className="doubt-answer">
-                        <span className="card-eyebrow">Saved answer</span>
+                      <div className="doubt-answer" aria-label="Answer">
                         <p>{doubt.answer}</p>
-                        {doubt.citations.length > 0 && (
-                          <div className="doubt-citations">
-                            <span className="card-eyebrow">Sources</span>
-                            {doubt.citations.map((citation) => (
-                              <div key={citation.content_unit_id} className="doubt-citation"><strong>{citation.source_label}</strong><span>{citation.snippet}</span></div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     )}
                   </article>
