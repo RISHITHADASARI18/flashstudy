@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..auth import get_current_user_id
+from ..ai import AIProviderError, answer_doubt
 from ..db import get_db
 from ..models import ContentUnit, Doubt, StudyMaterial
 from ..schemas import DoubtCitation, DoubtCreate, DoubtOut, DoubtResolve
@@ -120,7 +121,13 @@ async def create_doubt(
         _owned_document(db, payload.document_id, owner_id)
 
     units = _retrieve_units(db, question, owner_id, payload.document_id)
-    answer = _fallback_answer(units)
+    if not units:
+        answer = _fallback_answer(units)
+    else:
+        try:
+            answer = answer_doubt(question, _context(units))
+        except AIProviderError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
 
     citation_items = [
         {
