@@ -1,6 +1,7 @@
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://postgres:postgres@localhost:5432/flashstudy"
     storage_dir: str = "./storage"
@@ -9,11 +10,14 @@ class Settings(BaseSettings):
     dev_user_id: str = "dev-user"
     frontend_origins: str = "http://localhost:3000,https://flashstudy-rila2.vercel.app"
     frontend_origin_regex: str = r"https://.*\.vercel\.app"
+    groq_api_key: str = ""
+    groq_model: str = "openai/gpt-oss-20b"
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     @property
     def allowed_origins(self) -> list[str]:
         return [x.strip() for x in self.frontend_origins.split(",") if x.strip()]
+
 
 @lru_cache
 def get_settings() -> Settings:
