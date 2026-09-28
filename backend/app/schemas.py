@@ -26,6 +26,12 @@ class StudyMaterialOut(BaseModel):
 class StudyMaterialDetail(StudyMaterialOut):
     content_units: list[ContentUnitOut]
 
+class StudySetGenerateResponse(BaseModel):
+    document_id: UUID
+    filename: str
+    flashcards_created: int
+    quizzes_created: int
+
 class DoubtCreate(BaseModel):
     question: str
     document_id: UUID | None = None
@@ -75,3 +81,20 @@ class FlashcardReview(BaseModel):
 class FlashcardGenerateResponse(BaseModel):
     created: int
     cards: list[FlashcardOut]
+
+class QuizOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    document_id: UUID
+    source_unit_id: UUID | None
+    question: str
+    options: list[str]
+    correct_answer: str
+    explanation: str
+    difficulty: str
+    source_label: str | None = None
+    created_at: datetime
+
+class QuizGenerate(BaseModel):
+    document_id: UUID
+    count: int = 10
