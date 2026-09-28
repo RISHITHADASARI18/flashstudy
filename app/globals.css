@@ -455,3 +455,50 @@
 .doubt-citation{
   background:#fff;
 }
+
+
+/* Focused doubt answer: show only the relevant answer */
+.doubt-answer{
+  margin:4px 14px 16px;
+  border:1px solid #d8bea8;
+  border-radius:14px;
+  padding:28px 30px;
+  background:
+    radial-gradient(circle at 8% 8%,rgba(201,162,126,.22),transparent 34%),
+    linear-gradient(135deg,#fffaf6,#f7ede3);
+  box-shadow:inset 5px 0 0 var(--tan),0 10px 25px rgba(62,39,35,.07);
+  min-height:150px;
+  display:flex;
+  align-items:center;
+}
+.doubt-answer::before{
+  content:"ANSWER";
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip:rect(0 0 0 0);
+}
+.doubt-answer p{
+  margin:0;
+  color:var(--brown);
+  font-size:clamp(18px,2vw,24px);
+  line-height:1.65;
+  font-weight:600;
+  letter-spacing:-.015em;
+  white-space:pre-wrap;
+}
+.doubt-citations{
+  display:none;
+}
+@media(max-width:600px){
+  .doubt-answer{
+    margin:4px 10px 13px;
+    padding:22px 20px;
+    min-height:120px;
+  }
+  .doubt-answer p{
+    font-size:18px;
+    line-height:1.6;
+  }
+}
