@@ -19,6 +19,7 @@ class StudyMaterial(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     content_units: Mapped[list["ContentUnit"]] = relationship(back_populates="material", cascade="all, delete-orphan", order_by="ContentUnit.position")
+    quizzes: Mapped[list["QuizQuestion"]] = relationship(back_populates="document", cascade="all, delete-orphan")
 
 class ContentUnit(Base):
     __tablename__ = "content_units"
@@ -59,4 +60,19 @@ class Flashcard(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     document: Mapped[StudyMaterial | None] = relationship()
+    source_unit: Mapped[ContentUnit | None] = relationship()
+
+class QuizQuestion(Base):
+    __tablename__ = "quiz_questions"
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
+    owner_id: Mapped[str] = mapped_column(String(255), index=True)
+    document_id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), ForeignKey("study_materials.id", ondelete="CASCADE"), index=True)
+    source_unit_id: Mapped[UUID | None] = mapped_column(PGUUID(as_uuid=True), ForeignKey("content_units.id", ondelete="SET NULL"), nullable=True, index=True)
+    question: Mapped[str] = mapped_column(Text)
+    options_json: Mapped[str] = mapped_column(Text)
+    correct_answer: Mapped[str] = mapped_column(Text)
+    explanation: Mapped[str] = mapped_column(Text)
+    difficulty: Mapped[str] = mapped_column(String(20), default="Medium")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    document: Mapped[StudyMaterial] = relationship(back_populates="quizzes")
     source_unit: Mapped[ContentUnit | None] = relationship()
