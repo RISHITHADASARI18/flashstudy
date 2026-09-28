@@ -230,3 +230,15 @@
 .settings-note p{max-width:700px;color:var(--muted);font-size:11px;line-height:1.7;margin:0}
 @media(max-width:850px){.settings-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.settings-card{min-height:0}.settings-note{min-height:0}}
+
+
+/* Documents library list */
+.documents-list{margin-top:18px;display:flex;flex-direction:column;gap:8px}
+.document-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:15px 16px;border:1px solid #eee5de;border-radius:11px;background:#fcfaf8;transition:background .15s,border-color .15s}
+.document-row:hover{background:#fff;border-color:#dfd0c4}
+.document-row>div:first-child{min-width:0;display:flex;flex-direction:column;gap:5px}
+.document-row strong{font-size:12px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.document-row>div:first-child span{font-size:9px;color:#9b8c82;text-transform:capitalize}
+.document-row-actions{display:flex;gap:7px;flex-shrink:0}
+.document-row-actions .dashboard-secondary-btn{padding:8px 11px;font-size:9px}
+@media(max-width:650px){.document-row{align-items:flex-start;flex-direction:column}.document-row-actions{width:100%}.document-row-actions .dashboard-secondary-btn{flex:1}}
